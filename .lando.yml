@@ -1,0 +1,43 @@
+name: drupal
+recipe: drupal8
+config:
+  php: '7.2'
+  via: apache:2.4
+  webroot: web
+  xdebug: true
+  config:
+    php: php.ini
+
+services:
+  appserver:
+    build_as_root:
+      - apt-get update
+      - apt-get install -y nano
+    overrides:
+      environment:
+        PHP_IDE_CONFIG: "serverName=appserver"
+
+  database:
+    config:
+      database: mysql.cnf
+    creds:
+      user: drupal
+      password: drupal
+      database: drupal
+
+  phpmyadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+
+  mailhog:
+    type: mailhog
+    portforward: false
+    hogfrom:
+      - appserver
+
+proxy:
+  phpmyadmin:
+    - pma.lndo.site
+  mailhog:
+    - mailhog.lndo.site
